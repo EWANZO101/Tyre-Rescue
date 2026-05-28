@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+  window.tailwind = window.tailwind || {};
   tailwind.config = {
     darkMode: 'class',
     theme: {
@@ -44,11 +45,13 @@
   /* Safety net: never let an icon balloon to full screen if CSS framework fails to load */
   svg { max-width:100%; max-height:100%; }
   header svg, .truck-marker svg, button svg, a svg { width:auto; }
+  /* Hard caps so logos/icons can never fill the page even if Tailwind fails entirely */
+  header a svg { width:20px !important; height:20px !important; }
+  svg:not([width]) { width:24px; height:24px; }
   h1,h2,h3,.font-display { font-family:'Archivo',sans-serif; }
   .reveal { opacity:1; }
-  /* Only hide before animating when JS has confirmed it can run */
-  .js-anim .reveal { opacity:0; }
-  .js-anim .reveal.in { animation: fadeup .7s cubic-bezier(.22,1,.36,1) forwards; }
+  @keyframes fadeup2 { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .reveal.in { animation: fadeup2 .7s cubic-bezier(.22,1,.36,1) both; }
   /* Map styling */
   #map { height:100%; width:100%; background:#0a0e17; }
   .leaflet-container { background:#0a0e17; }
@@ -337,20 +340,11 @@ document.getElementById('areasGrid').innerHTML = areas.map((a,i)=>`
     ${a}
   </span>`).join('');
 
-/* ---------- SCROLL REVEAL (safe: content visible by default) ---------- */
-document.documentElement.classList.add('js-anim');
-const revealEls = Array.from(document.querySelectorAll('.reveal'));
-const io = new IntersectionObserver((es)=>es.forEach(e=>{ if(e.isIntersecting){e.target.classList.add('in'); io.unobserve(e.target);} }), {threshold:0, rootMargin:'0px 0px -5% 0px'});
-revealEls.forEach(el=>{
-  const r = el.getBoundingClientRect();
-  if(r.top < window.innerHeight && r.bottom > 0){ el.classList.add('in'); } // already on screen → show now
-  else io.observe(el);
-});
-// Failsafe: nothing should ever stay invisible
-setTimeout(()=>document.querySelectorAll('.reveal:not(.in)').forEach(el=>{
-  const r = el.getBoundingClientRect();
-  if(r.top < window.innerHeight) el.classList.add('in');
-}), 1200);
+/* ---------- SCROLL REVEAL (purely additive; content always visible) ---------- */
+try {
+  const io = new IntersectionObserver((es)=>es.forEach(e=>{ if(e.isIntersecting){e.target.classList.add('in'); io.unobserve(e.target);} }), {threshold:0});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+} catch(e){ /* animation is optional; content is already visible */ }
 
 /* ---------- LIVE MAP ---------- */
 let map, tileLayer;
@@ -428,10 +422,26 @@ function renderUnitList(){
       <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
     </button>`).join('');
 }
-function focusUnit(id){ const m=markers[id]; map.setView(m.getLatLng(),11,{animate:true}); m.openPopup(); }
+function focusUnit(id){ try{ const m=markers[id]; map.setView(m.getLatLng(),11,{animate:true}); m.openPopup(); }catch(e){} }
 window.focusUnit = focusUnit;
 
-if(document.readyState!=='loading') initMap(); else document.addEventListener('DOMContentLoaded', initMap);
+// Wait for Leaflet (L) to be available before initialising the map; never let it break the page
+(function bootMap(tries){
+  tries = tries || 0;
+  if (typeof L !== 'undefined' && document.getElementById('map')) {
+    try { initMap(); } catch(e){ console.warn('Map init failed:', e); showMapFallback(); }
+  } else if (tries < 50) {
+    setTimeout(()=>bootMap(tries+1), 150);
+  } else {
+    showMapFallback();
+  }
+})();
+
+function showMapFallback(){
+  const el = document.getElementById('map');
+  if(el) el.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#94a3b8;text-align:center;padding:2rem;font-size:14px;">Live map is loading… if it doesn\'t appear, check your connection.</div>';
+  try { renderUnitList(); } catch(e){}
+}
 
 /* ---------- DEVICE DETECTION ---------- */
 (function detectDevice(){
