@@ -22,9 +22,10 @@
         },
         colors: {
           brand: {
-            yellow: '#FFC107',
-            blue: '#1668d6',
-            dark: '#0a0e17',
+            yellow: '#1668d6',
+            blue: '#1d4ed8',
+            navy: '#0a2a5e',
+            dark: '#06122b',
           }
         },
         keyframes: {
@@ -53,8 +54,8 @@
   @keyframes fadeup2 { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
   .reveal.in { animation: fadeup2 .7s cubic-bezier(.22,1,.36,1) both; }
   /* Map styling */
-  #map { height:100%; width:100%; background:#0a0e17; }
-  .leaflet-container { background:#0a0e17; }
+  #map { height:100%; width:100%; background:#06122b; }
+  .leaflet-container { background:#06122b; }
   html:not(.dark) .leaflet-container { background:#e8eef5; }
   .leaflet-control-attribution { font-size:9px; opacity:.5; }
   .truck-marker {
@@ -62,15 +63,15 @@
     background:#1668d6;border-radius:50%;box-shadow:0 0 0 4px rgba(22,104,214,.25),0 4px 12px rgba(0,0,0,.4);
     border:2px solid #fff;color:#fff;transition:transform .4s ease;
   }
-  .truck-marker.busy { background:#FFC107;color:#0a0e17;box-shadow:0 0 0 4px rgba(255,193,7,.25),0 4px 12px rgba(0,0,0,.4); }
+  .truck-marker.busy { background:#fff;color:#1668d6;box-shadow:0 0 0 4px rgba(255,255,255,.3),0 4px 12px rgba(0,0,0,.4); }
   .pulse-ring { position:absolute;inset:-8px;border-radius:50%;border:2px solid #1668d6;animation:ring 2s ease-out infinite; }
-  .truck-marker.busy + .pulse-ring, .busy .pulse-ring { border-color:#FFC107; }
+  .truck-marker.busy + .pulse-ring, .busy .pulse-ring { border-color:#fff; }
   @keyframes ring { 0%{transform:scale(.6);opacity:.8} 100%{transform:scale(1.8);opacity:0} }
   .grain:before {
     content:'';position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.035;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)'/%3E%3C/svg%3E");
   }
-  .hero-glow { background:radial-gradient(circle at 70% 20%, rgba(22,104,214,.35), transparent 55%), radial-gradient(circle at 20% 80%, rgba(255,193,7,.18), transparent 50%); }
+  .hero-glow { background:radial-gradient(circle at 70% 20%, rgba(22,104,214,.35), transparent 55%), radial-gradient(circle at 20% 80%, rgba(29,78,216,.22), transparent 50%); }
   .skew-tag { clip-path: polygon(0 0,100% 0,96% 100%,0% 100%); }
 </style>
 </head>
@@ -95,11 +96,17 @@
       <a href="#contact" class="hover:text-brand-blue dark:hover:text-brand-yellow transition">Contact</a>
     </div>
     <div class="flex items-center gap-2">
-      <button id="themeToggle" aria-label="Toggle theme" class="grid place-items-center w-9 h-9 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-        <svg class="w-5 h-5 hidden dark:block text-brand-yellow" fill="currentColor" viewBox="0 0 24 24"><path d="M12 7a5 5 0 100 10 5 5 0 000-10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
-        <svg class="w-5 h-5 block dark:hidden text-slate-700" fill="currentColor" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>
+      <button id="themeToggle" aria-label="Toggle light and dark mode" title="Toggle light / dark mode" class="inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/5 transition text-sm font-medium">
+        <span class="hidden dark:inline-flex items-center gap-2 text-brand-yellow">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 7a5 5 0 100 10 5 5 0 000-10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+          <span class="hidden sm:inline">Light mode</span>
+        </span>
+        <span class="inline-flex dark:hidden items-center gap-2 text-slate-700">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>
+          <span class="hidden sm:inline">Dark mode</span>
+        </span>
       </button>
-      <a href="tel:+447577493325" class="hidden sm:inline-flex items-center gap-2 rounded-lg bg-brand-yellow text-brand-dark font-bold text-sm px-4 py-2 hover:brightness-105 transition shadow-lg shadow-brand-yellow/20">
+      <a href="tel:+447577493325" class="hidden sm:inline-flex items-center gap-2 rounded-lg bg-brand-blue text-white font-bold text-sm px-4 py-2 hover:brightness-105 transition shadow-lg shadow-brand-yellow/20">
         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11.4 11.4 0 003.6.6 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.4 11.4 0 00.6 3.6 1 1 0 01-.24 1z"/></svg>
         Call Now
       </a>
@@ -126,7 +133,7 @@
         24/7 mobile tyre rescue across Scotland. Punctures, replacements, fleet support — at your home, work or the roadside. No fuss. Just sorted.
       </p>
       <div class="reveal mt-8 flex flex-wrap gap-3" style="animation-delay:.18s">
-        <a href="tel:+447577493325" class="inline-flex items-center gap-2 rounded-xl bg-brand-yellow text-brand-dark font-bold px-6 py-3.5 hover:brightness-105 transition shadow-xl shadow-brand-yellow/25">
+        <a href="tel:+447577493325" class="inline-flex items-center gap-2 rounded-xl bg-brand-blue text-white font-bold px-6 py-3.5 hover:brightness-105 transition shadow-xl shadow-brand-yellow/25">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11.4 11.4 0 003.6.6 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.4 11.4 0 00.6 3.6 1 1 0 01-.24 1z"/></svg>
           07577 493325
         </a>
@@ -142,29 +149,15 @@
       </div>
     </div>
 
-    <!-- Hero stat card -->
+    <!-- Hero banner image -->
     <div class="reveal relative" style="animation-delay:.15s">
-      <div class="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-800 dark:to-brand-dark p-1 shadow-2xl">
-        <div class="rounded-[20px] bg-brand-dark/95 p-6 sm:p-8">
-          <div class="flex items-center justify-between mb-6">
-            <div>
-              <p class="text-xs uppercase tracking-widest text-brand-yellow font-bold">Average response</p>
-              <p class="font-display font-black text-4xl text-white mt-1">38 min</p>
-            </div>
-            <span class="grid place-items-center w-14 h-14 rounded-2xl bg-brand-blue/20 text-brand-blue dark:text-brand-yellow">
-              <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-            </span>
-          </div>
-          <div class="grid grid-cols-3 gap-3 text-center">
-            <div class="rounded-xl bg-white/5 py-3"><p class="font-display font-extrabold text-2xl text-white">9</p><p class="text-[11px] text-slate-400 mt-0.5">Units live</p></div>
-            <div class="rounded-xl bg-white/5 py-3"><p class="font-display font-extrabold text-2xl text-white">10+</p><p class="text-[11px] text-slate-400 mt-0.5">Towns covered</p></div>
-            <div class="rounded-xl bg-white/5 py-3"><p class="font-display font-extrabold text-2xl text-white">24/7</p><p class="text-[11px] text-slate-400 mt-0.5">Always on</p></div>
-          </div>
-          <a href="#tracker" class="mt-6 flex items-center justify-center gap-2 w-full rounded-xl bg-brand-yellow text-brand-dark font-bold py-3 hover:brightness-105 transition">
-            View live fleet
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          </a>
-        </div>
+      <div class="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-2xl">
+        <img src="banner.png" alt="Tyre Rescue Scotland — 24/7 Mobile Tyre Service" class="w-full h-auto block" loading="eager">
+      </div>
+      <div class="mt-4 grid grid-cols-3 gap-3 text-center">
+        <div class="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 py-3"><p class="font-display font-extrabold text-2xl text-brand-blue dark:text-white">9</p><p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Units live</p></div>
+        <div class="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 py-3"><p class="font-display font-extrabold text-2xl text-brand-blue dark:text-white">10+</p><p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Towns covered</p></div>
+        <div class="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 py-3"><p class="font-display font-extrabold text-2xl text-brand-blue dark:text-white">24/7</p><p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Always on</p></div>
       </div>
     </div>
   </div>
@@ -203,7 +196,7 @@
       </div>
       <div class="flex gap-3 text-sm">
         <span class="inline-flex items-center gap-2 rounded-lg bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 px-3 py-2"><span class="w-3 h-3 rounded-full bg-brand-blue"></span> Available</span>
-        <span class="inline-flex items-center gap-2 rounded-lg bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 px-3 py-2"><span class="w-3 h-3 rounded-full bg-brand-yellow"></span> On a job</span>
+        <span class="inline-flex items-center gap-2 rounded-lg bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 px-3 py-2"><span class="w-3 h-3 rounded-full bg-slate-400"></span> On a job</span>
       </div>
     </div>
     <div class="reveal grid lg:grid-cols-3 gap-6">
@@ -239,7 +232,7 @@
         <h2 class="font-display font-black text-4xl sm:text-5xl tracking-tight leading-tight">Need a tyre sorted<br><span class="text-brand-yellow">right now?</span></h2>
         <p class="mt-4 text-slate-300 max-w-md">Call or message us any time, day or night. We'll get a unit to you fast — home, work or roadside.</p>
         <div class="mt-8 flex flex-wrap gap-3">
-          <a href="tel:+447577493325" class="inline-flex items-center gap-2 rounded-xl bg-brand-yellow text-brand-dark font-bold px-6 py-3.5 hover:brightness-105 transition">
+          <a href="tel:+447577493325" class="inline-flex items-center gap-2 rounded-xl bg-brand-blue text-white font-bold px-6 py-3.5 hover:brightness-105 transition">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11.4 11.4 0 003.6.6 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.4 11.4 0 00.6 3.6 1 1 0 01-.24 1z"/></svg>
             07577 493325
           </a>
@@ -248,7 +241,7 @@
       </div>
       <div class="grid gap-3">
         <a href="tel:+447577493325" class="group flex items-center gap-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 p-5 transition">
-          <span class="grid place-items-center w-12 h-12 rounded-xl bg-brand-yellow text-brand-dark shrink-0"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11.4 11.4 0 003.6.6 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.4 11.4 0 00.6 3.6 1 1 0 01-.24 1z"/></svg></span>
+          <span class="grid place-items-center w-12 h-12 rounded-xl bg-brand-blue text-white shrink-0"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11.4 11.4 0 003.6.6 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.4 11.4 0 00.6 3.6 1 1 0 01-.24 1z"/></svg></span>
           <div><p class="text-xs text-slate-400">Phone · 24/7</p><p class="font-bold text-lg">+44 7577 493325</p></div>
         </a>
         <a href="https://wa.me/447577493325" target="_blank" rel="noopener" class="group flex items-center gap-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 p-5 transition">
@@ -304,7 +297,7 @@
 /* ---------- THEME ---------- */
 const root = document.documentElement;
 const stored = localStorage.getItem('theme');
-if (stored === 'dark' || (!stored && matchMedia('(prefers-color-scheme:dark)').matches)) root.classList.add('dark');
+if (stored === 'dark') root.classList.add('dark');
 document.getElementById('themeToggle').addEventListener('click', () => {
   root.classList.toggle('dark');
   localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
@@ -387,7 +380,7 @@ function initMap(){
   fleet.forEach(u=>{
     headings[u.id] = Math.random()*Math.PI*2;
     const m = L.marker([u.lat,u.lng],{icon:truckIcon(u.busy)}).addTo(map);
-    m.bindPopup(`<b>${u.id}</b> · ${u.name}<br><span style="color:${u.busy?'#d49a00':'#1668d6'}">${u.busy?'On a job':'Available'}</span>`);
+    m.bindPopup(`<b>${u.id}</b> · ${u.name}<br><span style="color:${u.busy?'#64748b':'#1668d6'}">${u.busy?'On a job':'Available'}</span>`);
     markers[u.id]=m;
   });
   renderUnitList();
@@ -414,10 +407,10 @@ function renderUnitList(){
   const avail = fleet.filter(f=>!f.busy).length;
   document.getElementById('unitList').innerHTML = fleet.map(u=>`
     <button onclick="focusUnit('${u.id}')" class="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-slate-100 dark:hover:bg-white/5 transition text-left">
-      <span class="w-2.5 h-2.5 rounded-full ${u.busy?'bg-brand-yellow animate-pulsing':'bg-brand-blue'}"></span>
+      <span class="w-2.5 h-2.5 rounded-full ${u.busy?'bg-slate-400 animate-pulsing':'bg-brand-blue'}"></span>
       <span class="flex-1">
         <span class="block text-sm font-bold">${u.id} <span class="text-slate-400 font-normal">· ${u.name}</span></span>
-        <span class="block text-xs ${u.busy?'text-amber-500':'text-emerald-500'}">${u.busy?'On a job':'Available'}</span>
+        <span class="block text-xs ${u.busy?'text-slate-500':'text-emerald-500'}">${u.busy?'On a job':'Available'}</span>
       </span>
       <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
     </button>`).join('');
