@@ -199,7 +199,7 @@
       <div>
         <span class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">
           <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>
-          Live with delays at times
+          Live now
         </span>
         <h2 class="font-display font-black text-4xl sm:text-5xl mt-3 tracking-tight">Fleet tracker</h2>
         <p class="mt-3 text-slate-600 dark:text-slate-300 max-w-lg">Watch our rescue units move across Scotland in real time. Spread across Edinburgh, Glasgow, Bathgate, Falkirk &amp; Fife.</p>
@@ -366,7 +366,7 @@ const fleet = [
   {id:'TA-09', base:'Paisley',    lat:55.8470, lng:-4.4230, busy:false, name:'Paisley'},
 ];
 const markers = {};
-const headings = {};
+const routes = {};   // per-unit: { coords:[[lat,lng]...], i:index }
 
 function truckIcon(busy){
   return L.divIcon({
@@ -391,35 +391,57 @@ function initMap(){
   map = L.map('map',{zoomControl:!IS_PHONE, attributionControl:true, preferCanvas:true, fadeAnimation:false, zoomAnimation:!IS_PHONE}).setView([55.92,-3.6],8);
   setMapTheme();
   fleet.forEach(u=>{
-    headings[u.id] = Math.random()*Math.PI*2;
     const m = L.marker([u.lat,u.lng],{icon:truckIcon(u.busy)}).addTo(map);
     m.bindPopup(`<b>${u.id}</b> · ${u.name}<br><span style="color:${u.busy?'#64748b':'#1668d6'}">${u.busy?'On a job':'Available'}</span>`);
     markers[u.id]=m;
   });
   renderUnitList();
-  // Slower tick on phones; pause entirely when the map is off-screen
-  const tickMs = IS_PHONE ? 4000 : 1800;
   let mapVisible = true;
   const mapSection = document.getElementById('tracker');
   if (mapSection && 'IntersectionObserver' in window) {
     new IntersectionObserver(es=>{ mapVisible = es[0].isIntersecting; }, {threshold:0.05}).observe(mapSection);
   }
-  setInterval(()=>{ if(mapVisible && !document.hidden) moveFleet(); }, tickMs);
+  // Step every ~10s; pause when off-screen or tab hidden. Stagger so units don't all hit OSRM at once.
+  fleet.forEach((u,idx)=>{
+    setTimeout(()=>{
+      newRoute(u);
+      setInterval(()=>{ if(mapVisible && !document.hidden) stepUnit(u); }, 10000);
+    }, idx*900);
+  });
   fleet.forEach(scheduleStatusFlip);
 }
 
-function moveFleet(){
-  fleet.forEach(u=>{
-    // gentle random-walk, biased to stay near base
-    headings[u.id] += (Math.random()-0.5)*0.9;
-    const speed = u.busy ? 0.0016 : 0.0026;
-    let nlat = u.lat + Math.sin(headings[u.id])*speed;
-    let nlng = u.lng + Math.cos(headings[u.id])*speed*1.6;
-    // tether to base
-    const baseUnit = fleet.find(f=>f.id===u.id);
-    u.lat = nlat; u.lng = nlng;
-    markers[u.id].setLatLng([u.lat,u.lng]);
-  });
+// Pick a destination a short distance from current position and fetch a real road route
+function newRoute(u){
+  const dLat = (Math.random()-0.5)*0.05;   // ~within a few km, stays near its town
+  const dLng = (Math.random()-0.5)*0.08;
+  const dest = [u.lat + dLat, u.lng + dLng];
+  const url = `https://router.project-osrm.org/route/v1/driving/${u.lng},${u.lat};${dest[1]},${dest[0]}?overview=full&geometries=geojson`;
+  fetch(url).then(r=>r.json()).then(j=>{
+    const line = j.routes && j.routes[0] && j.routes[0].geometry && j.routes[0].geometry.coordinates;
+    if(line && line.length>1){
+      routes[u.id] = { coords: line.map(c=>[c[1],c[0]]), i:0 };  // OSRM is [lng,lat] → [lat,lng]
+    } else { routes[u.id] = null; }
+  }).catch(()=>{ routes[u.id] = null; });
+}
+
+// Advance one unit a few road-points along its route each tick (real roads only → never in the sea)
+function stepUnit(u){
+  const r = routes[u.id];
+  if(!r || !r.coords){ if(!r) newRoute(u); return; }
+  r.i += 1 + Math.floor(Math.random()*2);   // 1–2 road points per 10s = gentle, realistic pace
+  if(r.i >= r.coords.length){
+    // arrived — snap to end, then plan a new route
+    const end = r.coords[r.coords.length-1];
+    u.lat = end[0]; u.lng = end[1];
+    if(markers[u.id]) markers[u.id].setLatLng([u.lat,u.lng]);
+    routes[u.id] = null;
+    newRoute(u);
+    return;
+  }
+  const p = r.coords[r.i];
+  u.lat = p[0]; u.lng = p[1];
+  if(markers[u.id]) markers[u.id].setLatLng([u.lat,u.lng]);
 }
 
 // Flip each unit's status on its own 20–30 min timer
