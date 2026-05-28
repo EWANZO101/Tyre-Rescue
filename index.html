@@ -405,6 +405,7 @@ function initMap(){
     new IntersectionObserver(es=>{ mapVisible = es[0].isIntersecting; }, {threshold:0.05}).observe(mapSection);
   }
   setInterval(()=>{ if(mapVisible && !document.hidden) moveFleet(); }, tickMs);
+  fleet.forEach(scheduleStatusFlip);
 }
 
 function moveFleet(){
@@ -418,9 +419,21 @@ function moveFleet(){
     const baseUnit = fleet.find(f=>f.id===u.id);
     u.lat = nlat; u.lng = nlng;
     markers[u.id].setLatLng([u.lat,u.lng]);
-    // occasional status flip
-    if(Math.random()<0.01){ u.busy=!u.busy; markers[u.id].setIcon(truckIcon(u.busy)); renderUnitList(); }
   });
+}
+
+// Flip each unit's status on its own 20–30 min timer
+function scheduleStatusFlip(u){
+  const mins = 20 + Math.random()*10;            // 20–30 minutes
+  setTimeout(()=>{
+    u.busy = !u.busy;
+    if(markers[u.id]){
+      markers[u.id].setIcon(truckIcon(u.busy));
+      markers[u.id].setPopupContent(`<b>${u.id}</b> · ${u.name}<br><span style="color:${u.busy?'#64748b':'#1668d6'}">${u.busy?'On a job':'Available'}</span>`);
+    }
+    renderUnitList();
+    scheduleStatusFlip(u);                         // schedule the next one
+  }, mins*60*1000);
 }
 
 function renderUnitList(){
