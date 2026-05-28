@@ -45,8 +45,10 @@
   svg { max-width:100%; max-height:100%; }
   header svg, .truck-marker svg, button svg, a svg { width:auto; }
   h1,h2,h3,.font-display { font-family:'Archivo',sans-serif; }
-  .reveal { opacity:0; }
-  .reveal.in { animation: fadeup .7s cubic-bezier(.22,1,.36,1) forwards; }
+  .reveal { opacity:1; }
+  /* Only hide before animating when JS has confirmed it can run */
+  .js-anim .reveal { opacity:0; }
+  .js-anim .reveal.in { animation: fadeup .7s cubic-bezier(.22,1,.36,1) forwards; }
   /* Map styling */
   #map { height:100%; width:100%; background:#0a0e17; }
   .leaflet-container { background:#0a0e17; }
@@ -335,9 +337,20 @@ document.getElementById('areasGrid').innerHTML = areas.map((a,i)=>`
     ${a}
   </span>`).join('');
 
-/* ---------- SCROLL REVEAL ---------- */
-const io = new IntersectionObserver((es)=>es.forEach(e=>{ if(e.isIntersecting){e.target.classList.add('in'); io.unobserve(e.target);} }), {threshold:.12});
-document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+/* ---------- SCROLL REVEAL (safe: content visible by default) ---------- */
+document.documentElement.classList.add('js-anim');
+const revealEls = Array.from(document.querySelectorAll('.reveal'));
+const io = new IntersectionObserver((es)=>es.forEach(e=>{ if(e.isIntersecting){e.target.classList.add('in'); io.unobserve(e.target);} }), {threshold:0, rootMargin:'0px 0px -5% 0px'});
+revealEls.forEach(el=>{
+  const r = el.getBoundingClientRect();
+  if(r.top < window.innerHeight && r.bottom > 0){ el.classList.add('in'); } // already on screen → show now
+  else io.observe(el);
+});
+// Failsafe: nothing should ever stay invisible
+setTimeout(()=>document.querySelectorAll('.reveal:not(.in)').forEach(el=>{
+  const r = el.getBoundingClientRect();
+  if(r.top < window.innerHeight) el.classList.add('in');
+}), 1200);
 
 /* ---------- LIVE MAP ---------- */
 let map, tileLayer;
