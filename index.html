@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tyre Assist Scotland — 24/7 Mobile Tyre Rescue</title>
 <meta name="description" content="24/7 mobile tyre rescue across Scotland. Punctures, mobile tyre replacement, fleet services, roadside assistance. We come to you — home, work or roadside.">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/3.4.16/tailwind.min.js"></script>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -41,6 +41,9 @@
 </script>
 <style>
   body { font-family:'Sora',sans-serif; }
+  /* Safety net: never let an icon balloon to full screen if CSS framework fails to load */
+  svg { max-width:100%; max-height:100%; }
+  header svg, .truck-marker svg, button svg, a svg { width:auto; }
   h1,h2,h3,.font-display { font-family:'Archivo',sans-serif; }
   .reveal { opacity:0; }
   .reveal.in { animation: fadeup .7s cubic-bezier(.22,1,.36,1) forwards; }
